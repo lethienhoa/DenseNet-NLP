@@ -1,14 +1,10 @@
 ## Implementation
 
-This model is a CNN based only on the character level as charCNN [1]. It exploit the benefit of deep structure for text understanding task as [3]. The first work of transfer a shallow CNN & distant supervision can be read at [5]. The aim of this model is to transfer a very deep (rather than a shallow) network and base only on character level without any feature-engineering at the word level [5]. This kind of transfer is depicted in [7]:
+This is the implementation 
 
 <p align="center">
   <img src="https://lh6.googleusercontent.com/bp61G9vYu2KjotruD1IFUd8TyZC1VL2BS-Uial0U3zNMvKVYh00tyjg_4fTAzI_NayoqOyZHce6ce_4=w1301-h641" />
 </p>
-
-The code is rewritten under Tensorflow TF-Slim to be shorter and facilitate more easily the tranfer of deep networks' layers, as Inception-v3 [4]. 
-
-The evaluation is on small data set of Semval-2013 (2.3k/0.9k pos/neg tweets). The input is a big Twitter's emoticon data set (1.6 M balanced pos/neg tweets) [6].
 
 ## Reference Articles
 
@@ -22,3 +18,5 @@ The evaluation is on small data set of Semval-2013 (2.3k/0.9k pos/neg tweets). T
 - https://github.com/scharmchi/char-level-cnn-tf
 - https://github.com/tensorflow/models/tree/master/resnet
 
+--------------
+MIT License
