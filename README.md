@@ -1,6 +1,6 @@
 ## Implementation
 
-This is the implementation of the paper Very Deep Convolutional Networks for Natural Language Processing of A. Conneau et al (2016) in Tensorflow. This code doesn't employ shorcut because the best performance is obsersed in 29 layers without shortcut.
+This is the implementation of the paper Very Deep Convolutional Networks for Natural Language Processing of A. Conneau et al (2016) in Tensorflow. This code doesn't employ shorcut because the best performance is observed in 29 layers without shortcut.
 
 <p align="center">
   <img src="https://lh6.googleusercontent.com/bp61G9vYu2KjotruD1IFUd8TyZC1VL2BS-Uial0U3zNMvKVYh00tyjg_4fTAzI_NayoqOyZHce6ce_4=w1301-h641" />
