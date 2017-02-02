@@ -1,4 +1,4 @@
-## Implementation
+## Implementation of the paper Very Deep Convolutional Networks for Natural Language Processing in Tensorflow 
 
 This is the implementation of the paper **Very Deep Convolutional Networks for Natural Language Processing** of **A. Conneau et al (2016)** in Tensorflow. This code doesn't employ shorcut because the best performance is observed in 29 layers without shortcut. It's free to choose the embedding size of vector so here it is initialized by one-hot-vector of alphabet's dictionary. The model is evaluated on Twitter data set [4].
 
@@ -16,7 +16,6 @@ This is the implementation of the paper **Very Deep Convolutional Networks for N
 ## Reference Source Codes
 
 - https://github.com/dennybritz/cnn-text-classification-tf
-- https://github.com/tensorflow/models/tree/master/resnet
 
 --------------
 MIT License
