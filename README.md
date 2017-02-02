@@ -3,7 +3,7 @@
 This is the implementation of the paper **Very Deep Convolutional Networks for Natural Language Processing** of **A. Conneau et al (2016)** in Tensorflow. This code doesn't employ shorcut because the best performance is observed in 29 layers without shortcut. It's free to choose the embedding size of vector so here it is initialized by one-hot-vector of alphabet's dictionary. The model is evaluated on Twitter data set [4].
 
 <p align="center">
-  <img src="https://lh6.googleusercontent.com/bp61G9vYu2KjotruD1IFUd8TyZC1VL2BS-Uial0U3zNMvKVYh00tyjg_4fTAzI_NayoqOyZHce6ce_4=w1301-h641" />
+  <img src="https://github.com/lethienhoa/Very-Deep-Convolutional-Networks-for-Natural-Language-Processing/blob/master/Selection_042.png?raw=true" />
 </p>
 
 ## Reference Articles
