@@ -26,7 +26,7 @@ class VDCNN():
         with tf.name_scope("first-conv-layer"):
             filter_shape = [num_quantized_chars, cnn_filter_size, 1, num_filters_per_size[0]]	
             W = tf.Variable(tf.truncated_normal(filter_shape, stddev=0.05), name="W")
-            b = tf.Variable(tf.constant(0.1, shape=[num_filters_per_size]), name="b")
+            b = tf.Variable(tf.constant(0.1, shape=[num_filters_per_size[0]), name="b")
             conv = tf.nn.conv2d(self.input_x, W, strides=[1, 1, 1, 1], padding="SAME", name="first-conv")	
             h = tf.nn.bias_add(conv, b)
 
