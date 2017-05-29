@@ -1,128 +1,103 @@
 import tensorflow as tf
+import tensorflow.contrib.slim as slim
+from tensorflow.python.ops import math_ops
+from tensorflow.contrib import layers as layers_lib
 
-alphabet = "abcdefghijklmnopqrstuvwxyz0123456789-,;.!?:'\"/\\|_@#$%^&*~`+-=<>()[]{}\n"
-sequence_max_length = 144 # Twitter has only 140 characters. We pad 4 blanks characters more to the right of tweets to be conformed with the architecture of A. Conneau et al (2016)
-top_k_max_pooling_size = 8
-epsilon = 1e-3 # Batch Norm
+alphabet = "abcdefghijklmnopqrstuvwxyz0123456789-,;.!?:'\"/\\|_@#$%^&*~`+-=<>()[]{}"
+sequence_max_length = 260
 
 class VDCNN():
     """
     A Very Deep CNN
     based on the Very Deep Convolutional Networks for Natural Language Processing paper.
     """
+
     def __init__(self, num_classes=2, cnn_filter_size=3, pooling_filter_size=2, num_filters_per_size=(64,128,256,512), 
-			num_rep_block=(10,10,4,4), num_quantized_chars=70, sequence_max_length=144, l2_reg_lambda=0.0):
+			num_rep_block=(16,16,16,6), num_quantized_chars=len(alphabet), l2_reg_weight_decay=0.0001):
+
+	def highwayUnit(input_layer, num_filters_per_size_i, cnn_filter_size, i, j):
+		with tf.variable_scope("highway_unit_" + str(i) + "_" + str(j)):
+			H = slim.conv2d(input_layer, num_filters_per_size_i, [1, cnn_filter_size])
+			T = slim.conv2d(input_layer, num_filters_per_size_i, [1, cnn_filter_size], 
+					biases_initializer=tf.constant_initializer(-1.0), activation_fn=tf.nn.sigmoid)
+					#We initialize with a negative bias to push the network to use the skip connection
+			output = H*T + input_layer*(1.0-T)
+			return output
+
+	def resUnit(input_layer, num_filters_per_size_i, cnn_filter_size, i, j):
+		print input_layer.get_shape()
+		with tf.variable_scope("res_unit_" + str(i) + "_" + str(j)):
+			part1 = slim.batch_norm(input_layer, activation_fn=None)
+			part2 = tf.nn.relu(part1)
+			part3 = slim.conv2d(part2, num_filters_per_size_i, [1, cnn_filter_size], activation_fn=None)
+			print part3.get_shape()
+			part4 = slim.batch_norm(part3, activation_fn=None)
+			part5 = tf.nn.relu(part4)
+			part6 = slim.conv2d(part5, num_filters_per_size_i, [1,cnn_filter_size], activation_fn=None)
+			print part6.get_shape()
+			print ""
+			output = input_layer + part6
+			return output
 
         self.input_x = tf.placeholder(tf.float32, [None, num_quantized_chars, sequence_max_length, 1], name="input_x")		
         self.input_y = tf.placeholder(tf.float32, [None, num_classes], name="input_y")
-        self.is_training = tf.placeholder(tf.bool, name="phase")
+	self.dropout_keep_prob = tf.placeholder(tf.float32, name="dropout_keep_prob")
 
-        # Keeping track of l2 regularization loss (optional)
-        l2_loss = tf.constant(0.0)
-
-	# Input Dim : 70 x 144 x 1
+	# Input Dim : 70 x 176 x 1
 
         # ================ First Conv Layer ================
-        with tf.name_scope("first-conv-layer"):
-            filter_shape = [num_quantized_chars, cnn_filter_size, 1, num_filters_per_size[0]]	
-            W = tf.Variable(tf.truncated_normal(filter_shape, stddev=0.05), name="W")
-            b = tf.Variable(tf.constant(0.1, shape=[num_filters_per_size[0]), name="b")
-            conv = tf.nn.conv2d(self.input_x, W, strides=[1, 1, 1, 1], padding="SAME", name="first-conv")	
-            h = tf.nn.bias_add(conv, b)
+	h = slim.conv2d(self.input_x, num_filters_per_size[0], [num_quantized_chars, cnn_filter_size], normalizer_fn=slim.batch_norm, scope = 'conv0', padding='VALID')
 
-	# Output Dim : 1 x 144 x 64
+	# Output Dim : 1 x 176 x 64
 
         # ================ Conv Block 64, 128, 256, 512 ================
-	# Output Dim of Conv Block 64 : 1 x 72 x 64
-	# Output Dim of Conv Block 128: 1 x 36 x 128
-	# Output Dim of Conv Block 256: 1 x 18 x 256       
-	# Output Dim of Conv Block 512: 1 x 18 x 512
-	for i in range(0,4):
-		with tf.name_scope("conv-block"):
-		    filter_shape = [1, cnn_filter_size, num_filters_per_size[i], num_filters_per_size[i]]	
+	for i in range(0,len(num_filters_per_size)):
+		for j in range(0,num_rep_block[i]):
+			h = resUnit(h, num_filters_per_size[i], cnn_filter_size, i, j)
+			#h = highwayUnit(h, num_filters_per_size[i], cnn_filter_size, i, j)
+		h = slim.max_pool2d(h, [1,pooling_filter_size], scope='pool_%s' % i)
 
-		    # ================ Internal Loop of each Conv Block 64, 128, 256, 512 ================
-		    for j in range(0,num_rep_block[i]):
-			with tf.name_scope("sub1"):
-			    W1 = tf.Variable(tf.truncated_normal(filter_shape, stddev=0.05), name="W1")
-			    conv1 = tf.nn.conv2d(h, W1, strides=[1, 1, 1, 1], padding="SAME", name="conv1")	
-			    # bias is replaced by batch_norm (same effect as beta in BN)
-			    batch_norm1 = tf.contrib.layers.batch_norm(conv1                                          
-									  center=True, scale=True, decay=0.9, 
-									  is_training=self.is_training,	
-						# When we want to evaluate the model, set to False to use moving_mean, moving_average
-									  name='bn1')	
-			    h1 = tf.nn.relu(batch_norm1, name="relu1")
-			with tf.name_scope("sub2"):
-			    W2 = tf.Variable(tf.truncated_normal(filter_shape, stddev=0.05), name="W2")
-			    conv2 = tf.nn.conv2d(h1, W2, strides=[1, 1, 1, 1], padding="SAME", name="conv2")	
-			    batch_norm2 = tf.contrib.layers.batch_norm(conv2                                          
-									  center=True, scale=True, decay=0.9, 
-									  is_training=self.is_training, name='bn2')
-			    h = tf.nn.relu(batch_norm2, name="relu2")
-		if (i<>3):	# don't do max pooling at the last conv block
-		    with tf.name_scope("max-pooling"):
-			h = tf.nn.max_pool(h, ksize=[1, 1, pooling_filter_size, 1],
-		        		      strides=[1, 1, 2, 1], padding='VALID', name="pool")
+	print h.get_shape()
 
-	# ================ Top k-max pooling ================
+        # ================ Layer FC ================
+	# Global avg max pooling
+	h = math_ops.reduce_mean(h, [1, 2], name='pool5', keep_dims=True)
+	print h.get_shape()
 
-	top_k_max_pooling = tf.nn.top_k(tf.transpose(h), k=top_k_max_pooling_size)
-	top_k_max_pooling = tf.transpose(top_k_max_pooling)
-	# Output Dim : 1 x 8 x 512
+	# Conv
+	h = slim.conv2d(h, num_classes, [1, 1], activation_fn=None, normalizer_fn=None, scope='output')
 
-        # ================ Layer FC 1 ================
-        num_features_total = top_k_max_pooling_size * num_filters_per_size[3]				
-        h_pool_flat = tf.reshape(top_k_max_pooling, [-1, num_features_total])			# num_features_total = 8 * 512 = 4096
-	# Output Dim : 1 x 4096
+	# FC & Dropout
+	scores = slim.flatten(h)
+	print scores.get_shape()
 
-        # Fully connected layer 1
-        with tf.name_scope("fc-1"):
-            W = tf.Variable(tf.truncated_normal([num_features_total, 4096], stddev=0.05), name="W")
-            # W = tf.get_variable("W", shape=[num_features_total, 1024],
-            #                     initializer=tf.contrib.layers.xavier_initializer())
-            b = tf.Variable(tf.constant(0.1, shape=[4096]), name="b")
-            # l2_loss += tf.nn.l2_loss(W)
-            # l2_loss += tf.nn.l2_loss(b)
-
-            fc_1_output = tf.nn.relu(tf.nn.xw_plus_b(h_pool_flat, W, b), name="fc-1-out")
-
-	# Output Dim : 1 x 4096
-
-        # ================ Layer FC 2 ================
-
-        # Fully connected layer 2
-        with tf.name_scope("fc-2"):
-            W = tf.Variable(tf.truncated_normal([4096, 2048], stddev=0.05), name="W")
-            # W = tf.get_variable("W", shape=[1024, 1024],
-            #                     initializer=tf.contrib.layers.xavier_initializer())
-            b = tf.Variable(tf.constant(0.1, shape=[2048]), name="b")
-            # l2_loss += tf.nn.l2_loss(W)
-            # l2_loss += tf.nn.l2_loss(b)
-
-            fc_2_output = tf.nn.relu(tf.nn.xw_plus_b(fc_1_output, W, b), name="fc-2-out")
-
-	# Output Dim : 1 x 2048
-
-        # ================ Layer FC 3 ================
-        # Fully connected layer 3
-        with tf.name_scope("fc-3"):
-            W = tf.Variable(tf.truncated_normal([2048, num_classes], stddev=0.05), name="W")
-            b = tf.Variable(tf.constant(0.1, shape=[num_classes]), name="b")
-            # l2_loss += tf.nn.l2_loss(W)
-            # l2_loss += tf.nn.l2_loss(b)
-
-	    # Output Dim : 1 x num_classes
-
-            scores = tf.nn.xw_plus_b(fc_2_output, W, b, name="output")
-            predictions = tf.argmax(scores, 1, name="predictions")
+	self.scores = scores
+        pred1D = tf.argmax(scores, 1, name="predictions")
+	self.predictions = pred1D
+	y1D = tf.argmax(self.input_y, 1)       
+	    
         # ================ Loss and Accuracy ================
         # CalculateMean cross-entropy loss
-        with tf.name_scope("loss"):
+        with tf.name_scope("evaluate"):
             losses = tf.nn.softmax_cross_entropy_with_logits(scores, self.input_y)
-            self.loss = tf.reduce_mean(losses) + l2_reg_lambda * l2_loss
+            self.loss = tf.reduce_mean(losses)
 
-        # Accuracy
-        with tf.name_scope("accuracy"):
-            correct_predictions = tf.equal(predictions, tf.argmax(self.input_y, 1))
+            correct_predictions = tf.equal(pred1D, y1D)
             self.accuracy = tf.reduce_mean(tf.cast(correct_predictions, "float"), name="accuracy")
+
+	    zeros_like = tf.zeros_like(y1D)
+	    ones_like = tf.ones_like(y1D)
+
+	    PP = tf.reduce_sum(tf.cast(tf.logical_and(tf.equal(pred1D, zeros_like), 
+						tf.equal(y1D, zeros_like)), 'float'))
+	    NN = tf.reduce_sum(tf.cast(tf.logical_and(tf.equal(pred1D, ones_like), 
+						tf.equal(y1D, ones_like)), 'float'))
+	    PN = tf.reduce_sum(tf.cast(tf.logical_and(tf.equal(pred1D, zeros_like), 
+						tf.equal(y1D, ones_like)), 'float'))
+	    NP = tf.reduce_sum(tf.cast(tf.logical_and(tf.equal(pred1D, ones_like), 
+						tf.equal(y1D, zeros_like)), 'float'))
+
+	    self.PP = PP
+	    self.PN = PN
+	    self.NP = NP
+	    self.NN = NN
