@@ -32,5 +32,3 @@ Hoa T. Le, Christophe Cerisara, Alexandre Denis. **Do Convolutional Networks nee
 
 - https://github.com/dennybritz/cnn-text-classification-tf
 
---------------
-MIT License
