@@ -12,6 +12,15 @@ We study in the paper the importance of depth in convolutional models for text c
 
 Hoa T. Le, Christophe Cerisara, Alexandre Denis. **Do Convolutional Networks need to be Deep for Text Classification ?**. Arxiv 2017 (https://arxiv.org/abs/1707.04108)
 
+@article{DBLP:journals/corr/LeCD17,
+  author    = {Hoa T. Le and
+               Christophe Cerisara and
+               Alexandre Denis},
+  title     = {Do Convolutional Networks need to be Deep for Text Classification ?},
+  journal   = {CoRR},
+  year      = {2017}
+}
+
 ## Reference Articles
 
 - [1] Xiang Zhang, Junbo Zhao, Yann LeCun. Character-level Convolutional Networks for Text Classification. Advances in Neural Information Processing Systems 28 (NIPS 2015)
