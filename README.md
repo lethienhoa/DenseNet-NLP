@@ -10,7 +10,7 @@ This is the implementation of the paper **Very Deep Convolutional Networks for N
 
 We study in the paper the importance of depth in convolutional models for text classification, either when character or word inputs are considered. We show on 5 standard text classification and sentiment analysis tasks that deep models indeed give better performances than shallow networks when the text input is represented as a sequence of characters. However, a simple shallow-and-wide network outperforms deep models such as DenseNet with word inputs. Our shallow word model further establishes new state-of-the-art performances on two datasets: Yelp Binary (95.9\%) and Yelp Full (64.9\%). 
 
-Hoa T. Le, Christophe Cerisara, Alexandre Denis. **Do Convolutional Networks need to be Deep for Text Classification ?**. Arxiv 2017 (https://arxiv.org/abs/1707.04108)
+Hoa T. Le, Christophe Cerisara, Alexandre Denis. **Do Convolutional Networks need to be Deep for Text Classification ?**. Association for the Advancement of Artificial Intelligence 2018 (AAAI-18) Workshop on Affective Content Analysis. (https://arxiv.org/abs/1707.04108)
 
     @article{DBLP:journals/corr/LeCD17,
       author    = {Hoa T. Le and
