@@ -19,7 +19,7 @@ Hoa T. Le, Christophe Cerisara, Alexandre Denis. **Do Convolutional Networks nee
   <img src="https://github.com/lethienhoa/Very-Deep-Convolutional-Networks-for-Natural-Language-Processing/blob/master/Selection_134.png?raw=true" />
 </p>
 
-**Results: **
+**Results:**
 
 <p align="center">
   <img src="https://github.com/lethienhoa/Very-Deep-Convolutional-Networks-for-Natural-Language-Processing/blob/master/Selection_135.png?raw=true" />
