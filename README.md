@@ -29,7 +29,6 @@ Hoa T. Le, Christophe Cerisara, Alexandre Denis. **Do Convolutional Networks nee
   <img src="https://github.com/lethienhoa/Very-Deep-Convolutional-Networks-for-Natural-Language-Processing/blob/master/Selection_136.png?raw=true" />
 </p>
 
-## Reference Source Codes
-
-- https://github.com/dennybritz/cnn-text-classification-tf
+**Reference Source Codes:**
+https://github.com/dennybritz/cnn-text-classification-tf
 
