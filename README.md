@@ -16,9 +16,18 @@ Hoa T. Le, Christophe Cerisara, Alexandre Denis. **Do Convolutional Networks nee
     }
 
 <p align="center">
-  <img src="https://github.com/lethienhoa/Very-Deep-Convolutional-Networks-for-Natural-Language-Processing/blob/master/Selection_042.png?raw=true" />
+  <img src="https://github.com/lethienhoa/Very-Deep-Convolutional-Networks-for-Natural-Language-Processing/blob/master/Selection_134.png?raw=true" />
 </p>
 
+**Results: **
+
+<p align="center">
+  <img src="https://github.com/lethienhoa/Very-Deep-Convolutional-Networks-for-Natural-Language-Processing/blob/master/Selection_135.png?raw=true" />
+</p>
+
+<p align="center">
+  <img src="https://github.com/lethienhoa/Very-Deep-Convolutional-Networks-for-Natural-Language-Processing/blob/master/Selection_136.png?raw=true" />
+</p>
 
 ## Reference Source Codes
 
