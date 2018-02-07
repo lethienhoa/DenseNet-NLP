@@ -7,7 +7,7 @@ import os
 import time
 import datetime
 import preprocessing
-from model import CharCNN
+from model_densenet import model
 
 # Parameters
 # ==================================================
@@ -61,7 +61,7 @@ with tf.Graph().as_default():
       log_device_placement=FLAGS.log_device_placement)
     sess = tf.Session(config=session_conf)
     with sess.as_default():
-        cnn = VDCNN()
+        cnn = model()
 
         # Define Training procedure
 	### To update the computation of moving_mean & moving_var, we must put it on the parent graph of minimizing loss
